@@ -3,13 +3,16 @@ plugins {
     `maven-publish`
 }
 
-group = "com.github.thinhnk55"
-version = "1.0.2"
+// Khai báo biến để tránh hard-code
+val groupId = "com.github.thinhnk55"
+val artifactId = "kha-common"
+val version = "1.0.3"
+
+group = groupId  // Sử dụng biến cho group
 
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
-
 }
 
 dependencies {
@@ -33,6 +36,22 @@ dependencies {
     implementation("org.casbin:jcasbin:1.81.0")
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = groupId   // Sử dụng biến cho groupId
+            artifactId = artifactId  // Sử dụng biến cho artifactId
+            version = version  // Sử dụng biến cho version
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://jitpack.io")
+        }
+    }
 }
 
 java {
