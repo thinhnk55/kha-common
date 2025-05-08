@@ -3,8 +3,8 @@ plugins {
     `maven-publish`
 }
 
-group = "com.defi.common" 
-version = "1.0.0"        
+group = "com.github.thinhnk55"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
