@@ -1,219 +1,236 @@
 package com.defi.common.token;
 
-import com.defi.common.token.entity.ClaimField;
-import com.defi.common.token.entity.SubjectType;
 import com.defi.common.token.entity.Token;
-import com.defi.common.token.entity.TokenType;
 import com.defi.common.token.helper.RSAKeyUtil;
-import com.nimbusds.jose.*;
+import com.defi.common.token.service.TokenIssuerService;
+import com.defi.common.token.service.TokenVerifierService;
+import com.defi.common.token.service.impl.TokenIssuerServiceImpl;
+import com.defi.common.token.service.impl.TokenVerifierServiceImpl;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jwt.*;
-
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
- * {@code TokenManager} is a singleton class responsible for issuing, signing, validating,
- * and parsing JWT access tokens using RSA public/private key pairs via the Nimbus JOSE + JWT library.
- *
- * <p>Tokens are generated from a {@link Token} domain object and signed with RS256.</p>
- *
- * <p>This utility supports:</p>
- * <ul>
- *     <li>Loading RSA keys from PEM strings</li>
- *     <li>Creating signed JWTs for sessions</li>
- *     <li>Refreshing expired tokens</li>
- *     <li>Validating and parsing existing tokens</li>
- * </ul>
+ * Singleton manager for JWT token operations including issuing and
+ * verification.
+ * 
+ * <p>
+ * This class provides centralized management of JWT token operations using RSA
+ * key pairs for signing and verification. It supports both token issuing and
+ * token parsing/verification capabilities.
+ * </p>
+ * 
+ * <p>
+ * Usage example:
+ * </p>
+ * 
+ * <pre>{@code
+ * TokenManager manager = TokenManager.getInstance();
+ * manager.init(publicKeyPEM, privateKeyPEM, passphrase);
+ * 
+ * // Parse and verify token
+ * Token token = manager.parseToken(jwtString);
+ * 
+ * // Issue new token
+ * String jwt = manager.issueToken(token);
+ * }</pre>
+ * 
+ * @author Defi Team
+ * @since 1.0.0
  */
+@Slf4j
 public class TokenManager {
 
-    /**
-     * Singleton instance of the TokenManager.
-     */
     @Getter
-    private static final TokenManager instance = new TokenManager();
+    private static TokenManager instance;
 
-    private RSAPrivateKey privateKey;
-    private RSAPublicKey publicKey;
-
-    private RSASSASigner signer;
-    private RSASSAVerifier verifier;
+    private TokenVerifierService verifier;
+    private TokenIssuerService issuer;
+    private volatile boolean initialized = false;
 
     /**
-     * Private constructor for singleton pattern.
+     * Private constructor to prevent direct instantiation.
      */
     private TokenManager() {
     }
 
     /**
-     * Initializes the token manager with public and private keys in PEM format.
-     *
-     * @param publicKeyPem  the PEM string of the public key
-     * @param privateKeyPem the PEM string of the private key
-     * @param paraphrase    the private key passphrase
-     * @throws Exception if the keys cannot be loaded or are invalid
+     * Initializes the TokenManager with RSA key pair for JWT operations.
+     * 
+     * <p>
+     * This method must be called before using any token operations.
+     * Subsequent calls will be ignored to prevent re-initialization.
+     * </p>
+     * 
+     * @param publicKey  RSA public key in PEM format for token verification
+     * @param privateKey RSA private key in PEM format for token signing
+     * @param paraphrase passphrase for the private key (can be null if not
+     *                   encrypted)
+     * @throws Exception                if key parsing or service initialization
+     *                                  fails
+     * @throws IllegalArgumentException if required parameters are null or empty
      */
-    public void init(String publicKeyPem, String privateKeyPem, String paraphrase) throws Exception {
-        this.publicKey = RSAKeyUtil.readRSAPublicKeyFromPEM(publicKeyPem);
-        this.privateKey = RSAKeyUtil.readRSAPrivateKeyFromPEM(privateKeyPem, paraphrase);
-        this.signer = new RSASSASigner(privateKey);
-        this.verifier = new RSASSAVerifier(publicKey);
+    public synchronized void init(String publicKey, String privateKey, String paraphrase) throws Exception {
+        if (initialized) {
+            log.warn("TokenManager is already initialized - ignoring subsequent init call");
+            return;
+        }
+
+        // Validate input parameters
+        if (publicKey == null || publicKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("Public key cannot be null or empty");
+        }
+        if (privateKey == null || privateKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("Private key cannot be null or empty");
+        }
+
+        try {
+            log.info("Initializing TokenManager with RSA key pair");
+
+            // Initialize verifier with public key
+            RSAPublicKey rsaPublicKey = RSAKeyUtil.readRSAPublicKeyFromPEM(publicKey);
+            RSASSAVerifier rsassaVerifier = new RSASSAVerifier(rsaPublicKey);
+            verifier = new TokenVerifierServiceImpl(rsassaVerifier);
+
+            // Initialize issuer with private key
+            RSAPrivateKey rsaPrivateKey = RSAKeyUtil.readRSAPrivateKeyFromPEM(privateKey, paraphrase);
+            RSASSASigner rsassaSigner = new RSASSASigner(rsaPrivateKey);
+            issuer = new TokenIssuerServiceImpl(rsassaSigner);
+
+            initialized = true;
+            log.info("TokenManager initialized successfully");
+
+        } catch (Exception e) {
+            log.error("Failed to initialize TokenManager", e);
+            // Cleanup on failure
+            verifier = null;
+            issuer = null;
+            throw e;
+        }
     }
 
     /**
-     * Generates a signed JWT access token with the provided session and subject details.
-     *
-     * @param sessionId    the session UUID
-     * @param type         the token type (e.g., access, refresh)
-     * @param subjectID    the ID of the subject (usually user ID)
-     * @param subjectName  the display name or username of the subject
-     * @param roles        list of role IDs
-     * @param groups       list of group IDs
-     * @param timeToLive   token TTL in seconds
-     * @return a signed JWT string
+     * Gets the singleton instance of TokenManager.
+     * 
+     * @return the TokenManager instance
      */
-    public String generateToken(UUID sessionId, TokenType type,
-                                UUID subjectID, String subjectName, List<Integer> roles,
-                                List<Integer> groups, long timeToLive) {
-        long issuedAt = Instant.now().getEpochSecond();
-        Token token = Token.builder()
-                .sessionId(sessionId)
-                .tokenType(type)
-                .subjectId(subjectID)
-                .subjectName(subjectName)
-                .subjectType(SubjectType.USER)
-                .roles(roles)
-                .groups(groups)
-                .iat(issuedAt)
-                .exp(issuedAt + timeToLive)
-                .build();
-        return signToken(token);
+    public static synchronized TokenManager getInstance() {
+        if (instance == null) {
+            instance = new TokenManager();
+        }
+        return instance;
     }
 
     /**
-     * Refreshes an existing token by creating a new one with updated issue and expiration times.
-     *
-     * @param token       the original token object
-     * @param timeToLive  time-to-live in seconds for the new token
-     * @return a new signed JWT string
+     * Parses and verifies a JWT token string.
+     * 
+     * @param jwtToken the JWT token string to parse
+     * @return the parsed Token object
+     * @throws IllegalStateException    if TokenManager is not initialized
+     * @throws IllegalArgumentException if jwtToken is null or empty
+     * @throws RuntimeException         if token parsing fails
+     */
+    public Token parseToken(String jwtToken) {
+        if (!initialized || verifier == null) {
+            throw new IllegalStateException("TokenManager is not initialized. Call init() first.");
+        }
+
+        if (jwtToken == null || jwtToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("JWT token cannot be null or empty");
+        }
+
+        try {
+            return verifier.parseToken(jwtToken);
+        } catch (Exception e) {
+            log.error("Failed to parse JWT token", e);
+            throw new RuntimeException("Token parsing failed", e);
+        }
+    }
+
+    /**
+     * Generates a new JWT token with the specified parameters.
+     * 
+     * @param sessionId   unique session identifier
+     * @param type        the type of token to generate
+     * @param subjectID   unique identifier of the subject
+     * @param subjectName display name of the subject
+     * @param roles       list of role identifiers
+     * @param groups      list of group identifiers
+     * @param timeToLive  token lifetime in seconds
+     * @return the generated JWT token string
+     * @throws IllegalStateException if TokenManager is not initialized
+     * @throws RuntimeException      if token generation fails
+     */
+    public String generateToken(String sessionId, com.defi.common.token.entity.TokenType type,
+            String subjectID, String subjectName, java.util.List<String> roles,
+            java.util.List<String> groups, long timeToLive) {
+        if (!initialized || issuer == null) {
+            throw new IllegalStateException("TokenManager is not initialized. Call init() first.");
+        }
+
+        try {
+            return issuer.generateToken(sessionId, type, subjectID, subjectName, roles, groups, timeToLive);
+        } catch (Exception e) {
+            log.error("Failed to generate JWT token", e);
+            throw new RuntimeException("Token generation failed", e);
+        }
+    }
+
+    /**
+     * Refreshes an existing token with new expiration time.
+     * 
+     * @param token      the original token to refresh
+     * @param timeToLive new token lifetime in seconds
+     * @return the refreshed JWT token string
+     * @throws IllegalStateException    if TokenManager is not initialized
+     * @throws IllegalArgumentException if token is null
+     * @throws RuntimeException         if token refresh fails
      */
     public String refreshToken(Token token, int timeToLive) {
-        long issuedAt = Instant.now().getEpochSecond();
-        Token newToken = Token.builder()
-                .tokenType(TokenType.ACCESS_TOKEN)
-                .sessionId(token.getSessionId())
-                .subjectId(token.getSubjectId())
-                .subjectName(token.getSubjectName())
-                .subjectType(token.getSubjectType())
-                .roles(token.getRoles())
-                .groups(token.getGroups())
-                .iat(issuedAt)
-                .exp(issuedAt + timeToLive)
-                .build();
-        return signToken(newToken);
-    }
+        if (!initialized || issuer == null) {
+            throw new IllegalStateException("TokenManager is not initialized. Call init() first.");
+        }
 
-    /**
-     * Signs a {@link Token} object as a JWT using RS256 algorithm.
-     *
-     * @param payload the token payload
-     * @return a signed JWT string
-     */
-    private String signToken(Token payload) {
+        if (token == null) {
+            throw new IllegalArgumentException("Token cannot be null");
+        }
+
         try {
-            JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
-                    .type(JOSEObjectType.JWT)
-                    .build();
-
-            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .subject(payload.getSubjectId().toString())
-                    .issueTime(new Date(payload.getIat() * 1000))
-                    .expirationTime(new Date(payload.getExp() * 1000))
-                    .claim(ClaimField.ID.getName(), payload.getSessionId().toString())
-                    .claim(ClaimField.TYPE.getName(), payload.getTokenType().getName())
-                    .claim(ClaimField.SUBJECT_NAME.getName(), payload.getSubjectName())
-                    .claim(ClaimField.SUBJECT_TYPE.getName(), payload.getSubjectName())
-                    .claim(ClaimField.ROLES.getName(), payload.getRoles())
-                    .claim(ClaimField.GROUPS.getName(), payload.getGroups())
-                    .build();
-
-            SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-            signedJWT.sign(signer);
-            return signedJWT.serialize();
-        } catch (JOSEException e) {
-            throw new RuntimeException("Token signing failed", e);
+            return issuer.refreshToken(token, timeToLive);
+        } catch (Exception e) {
+            log.error("Failed to refresh JWT token", e);
+            throw new RuntimeException("Token refresh failed", e);
         }
     }
 
     /**
-     * Validates the signature and expiration of the provided JWT.
-     *
-     * @param signedJWT the parsed JWT object
-     * @return {@code true} if the token is valid and not expired, otherwise {@code false}
+     * Checks if the TokenManager has been initialized.
+     * 
+     * @return true if initialized, false otherwise
      */
-    public boolean validateToken(SignedJWT signedJWT) {
-        try {
-            boolean signatureValid = signedJWT.verify(verifier);
-            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-            long expiresAt = claims.getExpirationTime().toInstant().getEpochSecond();
-            long now = Instant.now().getEpochSecond();
-            boolean notExpired = now < expiresAt;
-            return signatureValid && notExpired;
-        } catch (JOSEException | ParseException e) {
-            return false;
-        }
+    public boolean isInitialized() {
+        return initialized;
     }
 
     /**
-     * Parses a JWT string and returns the {@link Token} object if valid.
-     *
-     * @param token the JWT string
-     * @return a valid {@link Token} object, or {@code null} if invalid
+     * Gets the token verifier service.
+     * 
+     * @return the TokenVerifierService instance or null if not initialized
      */
-    public Token parseToken(String token) {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            if (!validateToken(signedJWT)) {
-                return null;
-            }
+    public TokenVerifierService getVerifier() {
+        return verifier;
+    }
 
-            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-            List<Object> roles = claims.getListClaim(ClaimField.ROLES.getName());
-            List<Object> groups = claims.getListClaim(ClaimField.GROUPS.getName());
-
-            long issuedAt = claims.getIssueTime().toInstant().getEpochSecond();
-            long expiresAt = claims.getExpirationTime().toInstant().getEpochSecond();
-
-            return Token.builder()
-                    .sessionId(UUID.fromString((String) claims.getClaim(ClaimField.ID.getName())))
-                    .tokenType(TokenType.forName((String) claims.getClaim(ClaimField.TYPE.getName())))
-                    .subjectId(UUID.fromString(claims.getSubject()))
-                    .subjectName((String) claims.getClaim(ClaimField.SUBJECT_NAME.getName()))
-                    .subjectType(SubjectType.forName((String) claims.getClaim(ClaimField.SUBJECT_TYPE.getName())))
-                    .roles(roles.stream()
-                            .filter(Integer.class::isInstance)
-                            .map(Integer.class::cast)
-                            .collect(Collectors.toList()))
-                    .groups(groups.stream()
-                            .filter(Integer.class::isInstance)
-                            .map(Integer.class::cast)
-                            .collect(Collectors.toList()))
-                    .iat(issuedAt)
-                    .exp(expiresAt)
-                    .build();
-        } catch (ParseException e) {
-            throw new RuntimeException("Failed to parse token", e);
-        }
+    /**
+     * Gets the token issuer service.
+     * 
+     * @return the TokenIssuerService instance or null if not initialized
+     */
+    public TokenIssuerService getIssuer() {
+        return issuer;
     }
 }
-
