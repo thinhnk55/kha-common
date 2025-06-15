@@ -1,6 +1,7 @@
 package com.defi.common.vertx;
 
 import com.defi.common.api.BaseResponse;
+import com.defi.common.api.CommonError;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
@@ -38,11 +39,19 @@ public class HttpApi {
      */
     public static <T> Handler<RoutingContext> handleAsync(Function<RoutingContext, T> blockingFunction) {
         return ctx -> VertxServer.getInstance().vertx.executeBlocking(() -> blockingFunction.apply(ctx))
-                .onSuccess(response -> ctx.response().end(response.toString())) // Send success response
-                .onFailure(err -> { // Handle failure
-                    handleError(ctx, err);
-                });
+                .onSuccess(response -> {
+                    if(response instanceof BaseResponse<?> baseResponse) {
+                        ctx.response().setStatusCode(baseResponse.code())
+                                .end(baseResponse.toString());
+                    }else{
+                        ctx.response().end(response.toString());
+                    }
+                })
+        .onFailure(err -> { // Handle failure
+            handleError(ctx, err);
+        });
     }
+
 
     /**
      * Handles synchronous HTTP requests using a provided function.
@@ -60,8 +69,13 @@ public class HttpApi {
     public static <T> Handler<RoutingContext> handleSync(Function<RoutingContext, T> syncFunction) {
         return ctx -> {
             try {
-                T result = syncFunction.apply(ctx); // Execute synchronously
-                ctx.response().end(result.toString()); // Send response
+                T result = syncFunction.apply(ctx);
+                if(result instanceof BaseResponse<?> baseResponse){
+                    ctx.response().setStatusCode(baseResponse.code())
+                            .end(baseResponse.toString());
+                }else {
+                    ctx.response().end(result.toString()); // Send response
+                }
             } catch (Exception err) {
                 handleError(ctx, err); // Handle any exceptions during the execution
             }
@@ -76,7 +90,7 @@ public class HttpApi {
      * @param err The error that occurred during request processing.
      */
     private static void handleError(RoutingContext ctx, Throwable err) {
-        // Log error (optional, based on your logging setup)
-        ctx.response().end(BaseResponse.INTERNAL_SERVER_ERROR.toString()); // Send generic error response
+        ctx.response().setStatusCode(CommonError.INTERNAL_SERVER.getCode())
+                .end(BaseResponse.INTERNAL_SERVER_ERROR.toString());
     }
 }
