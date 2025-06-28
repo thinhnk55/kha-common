@@ -1,4 +1,4 @@
-package com.defi.common.filter;
+package com.defi.common.util.filter;
 
 import com.google.common.base.CaseFormat;
 

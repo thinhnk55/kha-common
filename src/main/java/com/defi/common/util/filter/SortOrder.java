@@ -1,4 +1,4 @@
-package com.defi.common.filter;
+package com.defi.common.util.filter;
 
 /**
  * Enumeration representing database sort order directions.

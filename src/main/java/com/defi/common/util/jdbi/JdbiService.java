@@ -1,6 +1,4 @@
-package com.defi.common.jdbi;
-
-import com.defi.common.jdbi.JdbiProvider;
+package com.defi.common.util.jdbi;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.CaseFormat;

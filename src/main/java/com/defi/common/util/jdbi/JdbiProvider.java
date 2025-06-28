@@ -1,4 +1,4 @@
-package com.defi.common.jdbi;
+package com.defi.common.util.jdbi;
 
 import com.defi.common.util.json.JsonUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;

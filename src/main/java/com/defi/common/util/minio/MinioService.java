@@ -1,8 +1,7 @@
-package com.defi.common.minio;
+package com.defi.common.util.minio;
 
 import com.defi.common.slugify.SlugifyUtil;
 import com.defi.common.util.string.RandomStringUtil;
-import com.defi.common.minio.MinioClientProvider;
 import io.minio.*;
 
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package com.defi.common.flyway;
+package com.defi.common.util.flyway;
 
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;

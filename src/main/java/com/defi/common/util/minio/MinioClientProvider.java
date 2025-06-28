@@ -1,4 +1,4 @@
-package com.defi.common.minio;
+package com.defi.common.util.minio;
 
 import io.minio.MinioClient;
 import lombok.Getter;
