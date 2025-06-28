@@ -1,7 +1,9 @@
 package com.defi.common.permission.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Duration;
 
@@ -27,12 +29,24 @@ import java.time.Duration;
  *         .build();
  * }</pre>
  * 
+ * <p>
+ * Default constructor is provided by Lombok @NoArgsConstructor annotation.
+ * </p>
+ * 
  * @author Defi Team
  * @since 1.0.0
  */
 @Data
 @Builder
+@AllArgsConstructor
 public class PollingConfig {
+
+    /**
+     * Default constructor for PollingConfig.
+     */
+    public PollingConfig() {
+        // Default constructor
+    }
 
     /**
      * Duration between version checks.

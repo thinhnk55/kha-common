@@ -11,7 +11,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 
-
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.List;
@@ -20,12 +19,15 @@ import java.util.stream.Collectors;
 /**
  * {@code TokenVerifierServiceImpl} handles JWT token parsing and validation.
  * <p>
- * This service verifies the signature and expiration of JWT tokens using an RSASSA public key,
- * then extracts token claims and maps them to the application's {@link Token} object.
+ * This service verifies the signature and expiration of JWT tokens using an
+ * RSASSA public key,
+ * then extracts token claims and maps them to the application's {@link Token}
+ * object.
  * </p>
  *
  * <p>
- * The service requires an {@link RSASSAVerifier} instance for signature verification.
+ * The service requires an {@link RSASSAVerifier} instance for signature
+ * verification.
  * </p>
  *
  * @see TokenVerifierService
@@ -38,15 +40,23 @@ public class TokenVerifierServiceImpl implements TokenVerifierService {
      */
     private final RSASSAVerifier verifier;
 
+    /**
+     * Creates a new TokenVerifierServiceImpl with the specified RSA verifier.
+     * 
+     * @param verifier the RSA verifier used to verify JWT token signatures
+     */
     public TokenVerifierServiceImpl(RSASSAVerifier verifier) {
         this.verifier = verifier;
     }
 
     /**
-     * Parses and validates a JWT token string, extracting claims as a {@link Token} object.
+     * Parses and validates a JWT token string, extracting claims as a {@link Token}
+     * object.
      * <p>
-     * The method first checks the signature and expiration time; if the token is invalid,
-     * {@code null} is returned. Otherwise, claims such as roles, groups, and user information
+     * The method first checks the signature and expiration time; if the token is
+     * invalid,
+     * {@code null} is returned. Otherwise, claims such as roles, groups, and user
+     * information
      * are mapped into a {@link Token} entity.
      * </p>
      *
@@ -100,11 +110,13 @@ public class TokenVerifierServiceImpl implements TokenVerifierService {
     /**
      * Validates the provided JWT's signature and expiration.
      * <p>
-     * Returns {@code true} only if the token signature is valid and the token has not expired.
+     * Returns {@code true} only if the token signature is valid and the token has
+     * not expired.
      * </p>
      *
      * @param signedJWT the {@link SignedJWT} object to validate
-     * @return {@code true} if the token is valid and not expired, {@code false} otherwise
+     * @return {@code true} if the token is valid and not expired, {@code false}
+     *         otherwise
      */
     public boolean validateToken(SignedJWT signedJWT) {
         try {

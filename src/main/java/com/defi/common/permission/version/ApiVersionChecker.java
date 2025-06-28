@@ -2,6 +2,7 @@ package com.defi.common.permission.version;
 
 import com.defi.common.api.BaseResponse;
 import com.defi.common.util.json.JsonUtil;
+import com.defi.common.util.log.ErrorLogger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +33,18 @@ public class ApiVersionChecker implements VersionChecker {
 
     private String apiEndpoint;
 
+    /**
+     * Creates a new ApiVersionChecker with default HTTP client configuration.
+     */
+    public ApiVersionChecker() {
+        // Default constructor for framework usage
+    }
+
+    /**
+     * Sets the API endpoint for version checking.
+     * 
+     * @param endpoint the HTTP endpoint URL to check for version information
+     */
     public void setApiEndpoint(String endpoint) {
         this.apiEndpoint = endpoint;
     }
@@ -60,7 +73,7 @@ public class ApiVersionChecker implements VersionChecker {
 
             TypeReference<BaseResponse<Long>> typeRef = new TypeReference<>() {
             };
-            BaseResponse<Long> parsed = JsonUtil.fromJsonString(json, typeRef);
+            BaseResponse<Long> parsed = JsonUtil.fromJson(json, typeRef);
 
             if (parsed.data() != null) {
                 return Optional.of(parsed.data());
@@ -70,7 +83,9 @@ public class ApiVersionChecker implements VersionChecker {
             }
 
         } catch (Exception e) {
-            log.debug("Failed to get version for apiEndpoint: {} from API", apiEndpoint, e);
+            ErrorLogger.create("Failed to get version from API", e)
+                    .putContext("apiEndpoint", apiEndpoint)
+                    .log();
             return Optional.empty();
         }
     }
@@ -94,7 +109,9 @@ public class ApiVersionChecker implements VersionChecker {
             return json != null && !json.trim().isEmpty();
 
         } catch (Exception e) {
-            log.debug("Failed to validate API availability at {}", apiEndpoint, e);
+            ErrorLogger.create("API version checker is unavailable", e)
+                    .putContext("apiEndpoint", apiEndpoint)
+                    .log();
             return false;
         }
     }

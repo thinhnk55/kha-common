@@ -2,6 +2,7 @@ package com.defi.common.permission.policy;
 
 import com.defi.common.mode.ModeManager;
 import com.defi.common.permission.entity.PolicyRule;
+import com.defi.common.util.log.ErrorLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.jcasbin.main.Enforcer;
@@ -12,10 +13,43 @@ import java.util.List;
 /**
  * Implementation of PolicyLoader for loading policies from resource files (CSV
  * format).
+ * 
+ * <p>
+ * This loader reads policy rules from CSV files embedded in the application
+ * resources. It's useful for applications that need to package policies
+ * with the application rather than storing them in external databases.
+ * </p>
+ * 
+ * <p>
+ * CSV format expected: p,roleId,resourceCode,actionCode
+ * </p>
+ * 
+ * <p>
+ * Example usage:
+ * </p>
+ * 
+ * <pre>{@code
+ * ResourcePolicyLoaderImpl loader = new ResourcePolicyLoaderImpl(
+ *         "casbin/policies.csv",
+ *         Arrays.asList("app1", "app2"));
+ * loader.loadPolicies(enforcer);
+ * }</pre>
+ * 
+ * @author Defi Team
+ * @since 1.0.0
  */
 @RequiredArgsConstructor
 @Slf4j
 public class ResourcePolicyLoaderImpl implements PolicyLoader {
+
+    /**
+     * Default constructor for ResourcePolicyLoaderImpl.
+     */
+    public ResourcePolicyLoaderImpl() {
+        // This constructor is not used due to @RequiredArgsConstructor
+        this.resourcePath = null;
+        this.resources = null;
+    }
 
     private final String resourcePath;
     private final List<String> resources;
@@ -36,7 +70,9 @@ public class ResourcePolicyLoaderImpl implements PolicyLoader {
             log.info("Policy loading completed successfully - {} policies loaded from resource", policies.size());
 
         } catch (Exception e) {
-            log.error("Failed to load policies from resource: {}", resourcePath, e);
+            ErrorLogger.create("Failed to load policies from resource", e)
+                    .putContext("resourcePath", resourcePath)
+                    .log();
             throw new RuntimeException("Resource policy loading failed: " + e.getMessage(), e);
         }
     }
@@ -92,7 +128,10 @@ public class ResourcePolicyLoaderImpl implements PolicyLoader {
             return policies;
 
         } catch (Exception e) {
-            log.error("Failed to load policy rules from resource: {}", resourcePath, e);
+            ErrorLogger.create("Failed to load policy rules from resource", e)
+                    .putContext("resourcePath", resourcePath)
+                    .putContext("filteredResources", resources)
+                    .log();
             throw new RuntimeException("Resource policy loading failed: " + resourcePath, e);
         }
     }
@@ -125,7 +164,9 @@ public class ResourcePolicyLoaderImpl implements PolicyLoader {
             }
 
         } catch (Exception e) {
-            log.error("Failed to load policies into enforcer", e);
+            ErrorLogger.create("Failed to load policies into enforcer", e)
+                    .putContext("policyCount", policies.size())
+                    .log();
             throw new RuntimeException("Policy loading into enforcer failed", e);
         }
     }

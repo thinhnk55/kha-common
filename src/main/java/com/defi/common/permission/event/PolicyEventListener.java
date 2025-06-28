@@ -46,10 +46,18 @@ public class PolicyEventListener implements MessageListener<String> {
     private RTopic topic;
     private final String channelName;
 
+    /**
+     * Creates a new PolicyEventListener using the default channel.
+     */
     public PolicyEventListener() {
         this.channelName = PolicyEventConstant.DEFAULT_CHANNEL;
     }
 
+    /**
+     * Creates a new PolicyEventListener with a custom channel name.
+     * 
+     * @param channelName the Redis channel name to listen on
+     */
     public PolicyEventListener(String channelName) {
         this.channelName = channelName;
     }

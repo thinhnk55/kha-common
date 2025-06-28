@@ -19,7 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * {@code TokenIssuerServiceImpl} is responsible for JWT token generation and refresh.
+ * {@code TokenIssuerServiceImpl} is responsible for JWT token generation and
+ * refresh.
  * <p>
  * This service uses RSASSASigner to create JWTs signed with RS256.
  * It provides methods for issuing new tokens and refreshing existing ones,
@@ -27,12 +28,12 @@ import java.util.List;
  * </p>
  *
  * <p>
- * The bean is only created if an {@link RSASSASigner} bean is present in the application context.
+ * The bean is only created if an {@link RSASSASigner} bean is present in the
+ * application context.
  * </p>
  *
  * @see TokenIssuerService
  */
-
 
 public class TokenIssuerServiceImpl implements TokenIssuerService {
 
@@ -41,6 +42,11 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
      */
     private final RSASSASigner signer;
 
+    /**
+     * Creates a new TokenIssuerServiceImpl with the specified RSA signer.
+     * 
+     * @param signer the RSA signer used to sign JWT tokens
+     */
     public TokenIssuerServiceImpl(RSASSASigner signer) {
         this.signer = signer;
     }
@@ -60,8 +66,8 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
      */
     @Override
     public String generateToken(String sessionId, TokenType type,
-                                String subjectID, String subjectName, List<String> roles,
-                                List<String> groups, long timeToLive) {
+            String subjectID, String subjectName, List<String> roles,
+            List<String> groups, long timeToLive) {
         long issuedAt = Instant.now().getEpochSecond();
         Token token = Token.builder()
                 .sessionId(sessionId)
@@ -78,7 +84,8 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
     }
 
     /**
-     * Refreshes an existing JWT token, generating a new token with updated issue and expiration times.
+     * Refreshes an existing JWT token, generating a new token with updated issue
+     * and expiration times.
      *
      * @param token      the original token to refresh
      * @param timeToLive the new token's time-to-live in seconds
@@ -105,7 +112,8 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
     /**
      * Signs a {@link Token} object as a JWT using RS256 algorithm.
      * <p>
-     * The resulting token includes claims such as subject, session ID, roles, and groups,
+     * The resulting token includes claims such as subject, session ID, roles, and
+     * groups,
      * and is cryptographically signed with the provided {@link RSASSASigner}.
      * </p>
      *

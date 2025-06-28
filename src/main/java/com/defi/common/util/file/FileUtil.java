@@ -1,6 +1,7 @@
 package com.defi.common.util.file;
 
 import com.defi.common.util.log.DebugLogger;
+import com.defi.common.util.log.ErrorLogger;
 
 import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +37,9 @@ public class FileUtil {
             }
             return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            DebugLogger.logger.error("Failed to read file: {}", filePath, e);
+            ErrorLogger.create("Failed to read file", e)
+                    .putContext("filePath", filePath)
+                    .log();
             return null;
         }
     }
@@ -55,7 +58,9 @@ public class FileUtil {
             writer.append(data);
             writer.close();
         } catch (Exception e) {
-            DebugLogger.logger.error("Failed to write file: {}", fileName, e);
+            ErrorLogger.create("Failed to write file", e)
+                    .putContext("fileName", fileName)
+                    .log();
         }
     }
 
@@ -80,7 +85,9 @@ public class FileUtil {
             Path path = Paths.get(fileName);
             Files.createDirectories(path.getParent());
         } catch (Exception e) {
-            DebugLogger.logger.error("Failed to create parent directories for: {}", fileName, e);
+            ErrorLogger.create("Failed to create parent directories", e)
+                    .putContext("fileName", fileName)
+                    .log();
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.defi.common.permission.version;
 
+import com.defi.common.util.log.ErrorLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,9 +25,22 @@ import java.util.Optional;
 @Slf4j
 public class DatabaseVersionChecker implements VersionChecker {
 
+    /**
+     * Default constructor for DatabaseVersionChecker.
+     */
+    public DatabaseVersionChecker() {
+        // This constructor is not used due to @RequiredArgsConstructor
+        this.dataSource = null;
+    }
+
     private final DataSource dataSource;
     private String sqlQuery;
 
+    /**
+     * Sets the SQL query for version checking.
+     * 
+     * @param sqlQuery the SQL query to execute for retrieving version information
+     */
     public void setSqlQuery(String sqlQuery) {
         this.sqlQuery = sqlQuery;
     }
@@ -43,7 +57,9 @@ public class DatabaseVersionChecker implements VersionChecker {
             }
 
         } catch (Exception e) {
-            log.debug("Failed to get version from database using default query", e);
+            ErrorLogger.create("Failed to get version from database", e)
+                    .putContext("sqlQuery", sqlQuery)
+                    .log();
         }
         return Optional.empty();
     }
@@ -55,7 +71,9 @@ public class DatabaseVersionChecker implements VersionChecker {
                 ResultSet rs = ps.executeQuery()) {
             return rs.next(); // If query runs and returns something, it's available
         } catch (Exception e) {
-            log.debug("Version check failed (unavailable): {}", sqlQuery, e);
+            ErrorLogger.create("Database version checker is unavailable", e)
+                    .putContext("sqlQuery", sqlQuery)
+                    .log();
             return false;
         }
     }

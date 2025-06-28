@@ -5,7 +5,7 @@ plugins {
 
 val groupId = "com.github.thinhnk55"
 val artifactId = "kha-common"
-val versionId = "1.0.5"
+val versionId = "1.0.6"
 
 group = groupId
 version = versionId
@@ -29,10 +29,13 @@ val minioVersion = "8.5.17"
 val uuidCreatorVersion = "6.0.0"
 val redissonVersion = "3.49.0"
 val lombokVersion = "1.18.36"
-val junitVersion = "5.13.1"
+val junitVersion = "5.9.1"
 val nimbusVersion = "10.3"
-val bouncycastleVersion = "1.80"
-val jcasbinVersion = "1.81.0"
+val bouncyCastleVersion = "1.80"
+val jCasbinVersion = "1.81.0"
+val guavaVersion = "33.4.8-jre"
+val slugifyVersion = "3.0.7"
+val icu4jVersion = "77.1"
 
 dependencies {
     implementation("io.vertx:vertx-core:$vertxVersion")
@@ -56,12 +59,15 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     implementation("com.nimbusds:nimbus-jose-jwt:$nimbusVersion")
-	implementation("org.bouncycastle:bcprov-jdk18on:$bouncycastleVersion")
-	implementation("org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion")
-	implementation("org.casbin:jcasbin:$jcasbinVersion")
+	implementation("org.bouncycastle:bcprov-jdk18on:$bouncyCastleVersion")
+	implementation("org.bouncycastle:bcpkix-jdk18on:$bouncyCastleVersion")
+	implementation("org.casbin:jcasbin:$jCasbinVersion")
 
     implementation("org.redisson:redisson:$redissonVersion")
     implementation("com.github.f4b6a3:uuid-creator:$uuidCreatorVersion")
+    implementation("com.github.slugify:slugify:$slugifyVersion")
+    implementation("com.google.guava:guava:$guavaVersion")
+    implementation("com.ibm.icu:icu4j:$icu4jVersion")
 
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")

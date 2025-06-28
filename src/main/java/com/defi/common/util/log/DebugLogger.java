@@ -2,9 +2,12 @@ package com.defi.common.util.log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * {@code DebugLogger} is a utility class for accessing named SLF4J loggers.
- * It includes a default "debug" logger and a method to retrieve custom loggers by name.
+ * It includes a default "debug" logger for general-purpose, human-readable logging
+ * during development and a method to retrieve custom loggers by name.
+ * For structured error logging, use the {@link ErrorLogger} class.
  */
 public class DebugLogger {
 
@@ -17,16 +20,7 @@ public class DebugLogger {
 
     /**
      * A predefined logger with the name {@code "debug"} for general debugging output.
+     * This logger is intended for simple, unstructured, human-readable logs during development.
      */
     public static final Logger logger = LoggerFactory.getLogger("debug");
-
-    /**
-     * Returns a logger with the specified name.
-     *
-     * @param loggerName the name of the logger
-     * @return a SLF4J {@link Logger}
-     */
-    public static Logger getLogger(String loggerName) {
-        return LoggerFactory.getLogger(loggerName);
-    }
 }

@@ -1,5 +1,6 @@
 package com.defi.common.permission.version;
 
+import com.defi.common.util.log.ErrorLogger;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -92,7 +93,10 @@ public class VersionPollingService {
             log.info("Version polling service started - interval: {} seconds", pollingInterval.toSeconds());
 
         } catch (Exception e) {
-            log.error("Failed to start version polling service", e);
+            ErrorLogger.create("Failed to start version polling service", e)
+                    .putContext("pollingIntervalSeconds", pollingInterval.toSeconds())
+                    .putContext("versionChecker", versionChecker.getDescription())
+                    .log();
             throw new RuntimeException("Failed to start version polling service", e);
         }
     }
@@ -124,11 +128,12 @@ public class VersionPollingService {
                         scheduler.shutdownNow();
                         // Wait a bit more for tasks to respond to being cancelled
                         if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
-                            log.error("Scheduler did not terminate after forced shutdown");
+                            RuntimeException ex = new RuntimeException("Scheduler did not terminate after forced shutdown");
+                            ErrorLogger.create(ex.getMessage(), ex).log();
                         }
                     }
                 } catch (InterruptedException e) {
-                    log.warn("Interrupted while waiting for scheduler termination");
+                    ErrorLogger.create("Interrupted while waiting for scheduler termination", e).log();
                     scheduler.shutdownNow();
                     Thread.currentThread().interrupt();
                 } finally {
@@ -139,7 +144,7 @@ public class VersionPollingService {
             log.info("Version polling service stopped");
 
         } catch (Exception e) {
-            log.error("Error stopping version polling service", e);
+            ErrorLogger.create("Error stopping version polling service", e).log();
             // Ensure cleanup even on error
             isRunning = false;
             pollingTask = null;
@@ -164,7 +169,9 @@ public class VersionPollingService {
                 cachedVersion.set(-1L);
             }
         } catch (Exception e) {
-            log.error("Error loading initial version", e);
+            ErrorLogger.create("Error loading initial version", e)
+                    .putContext("versionChecker", versionChecker.getDescription())
+                    .log();
             cachedVersion.set(-1L);
         }
     }
@@ -196,7 +203,10 @@ public class VersionPollingService {
                     reloadCallback.run();
                     log.info("Policy reload completed successfully due to version change");
                 } catch (Exception e) {
-                    log.error("Error during policy reload callback", e);
+                    ErrorLogger.create("Error during policy reload callback", e)
+                            .putContext("oldVersion", oldVersion)
+                            .putContext("newVersion", newVersion)
+                            .log();
                 }
 
             } else if (oldVersion == -1L) {
@@ -208,7 +218,10 @@ public class VersionPollingService {
             }
 
         } catch (Exception e) {
-            log.error("Error during version check", e);
+            ErrorLogger.create("Error during version check", e)
+                    .putContext("cachedVersion", cachedVersion.get())
+                    .putContext("versionChecker", versionChecker.getDescription())
+                    .log();
         }
     }
 

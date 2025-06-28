@@ -1,6 +1,7 @@
 package com.defi.common.permission.policy;
 
 import com.defi.common.permission.entity.PolicyRule;
+import com.defi.common.util.log.ErrorLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.jcasbin.main.Enforcer;
@@ -69,6 +70,16 @@ import java.util.List;
 public class DatabasePolicyLoaderImpl implements PolicyLoader {
 
     /**
+     * Default constructor for DatabasePolicyLoaderImpl.
+     */
+    public DatabasePolicyLoaderImpl() {
+        // This constructor is not used due to @RequiredArgsConstructor
+        this.dataSource = null;
+        this.sqlQuery = null;
+        this.resources = null;
+    }
+
+    /**
      * Database connection source for executing SQL queries.
      */
     private final DataSource dataSource;
@@ -117,7 +128,9 @@ public class DatabasePolicyLoaderImpl implements PolicyLoader {
             log.info("Policy loading completed successfully - {} policies loaded from database", policies.size());
 
         } catch (Exception e) {
-            log.error("Failed to load policies from database: {}", sqlQuery, e);
+            ErrorLogger.create("Failed to load policies from database", e)
+                    .putContext("sqlQuery", sqlQuery)
+                    .log();
             throw new RuntimeException("Database policy loading failed: " + e.getMessage(), e);
         }
     }
@@ -168,7 +181,10 @@ public class DatabasePolicyLoaderImpl implements PolicyLoader {
             return policies;
 
         } catch (Exception e) {
-            log.error("Failed to load policy rules from database", e);
+            ErrorLogger.create("Failed to load policy rules from database", e)
+                    .putContext("finalQuery", finalQuery)
+                    .putContext("filteredResources", resources)
+                    .log();
             throw new RuntimeException("Database policy loading failed: " + e.getMessage(), e);
         }
     }
@@ -211,7 +227,9 @@ public class DatabasePolicyLoaderImpl implements PolicyLoader {
             }
 
         } catch (Exception e) {
-            log.error("Failed to load policies into enforcer", e);
+            ErrorLogger.create("Failed to load policies into enforcer", e)
+                    .putContext("policyCount", policies.size())
+                    .log();
             throw new RuntimeException("Policy loading into enforcer failed", e);
         }
     }

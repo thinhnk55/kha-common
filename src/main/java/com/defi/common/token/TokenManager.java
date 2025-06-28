@@ -7,6 +7,7 @@ import com.defi.common.token.service.TokenVerifierService;
 import com.defi.common.token.service.impl.TokenIssuerServiceImpl;
 import com.defi.common.token.service.impl.TokenVerifierServiceImpl;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.defi.common.util.log.ErrorLogger;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,6 @@ import java.security.interfaces.RSAPublicKey;
 @Slf4j
 public class TokenManager {
 
-    @Getter
     private static TokenManager instance;
 
     private TokenVerifierService verifier;
@@ -105,7 +105,6 @@ public class TokenManager {
             log.info("TokenManager initialized successfully");
 
         } catch (Exception e) {
-            log.error("Failed to initialize TokenManager", e);
             // Cleanup on failure
             verifier = null;
             issuer = null;
@@ -146,7 +145,9 @@ public class TokenManager {
         try {
             return verifier.parseToken(jwtToken);
         } catch (Exception e) {
-            log.error("Failed to parse JWT token", e);
+            ErrorLogger.create("Failed to parse JWT token", e)
+                    .putContext("jwtToken", jwtToken)
+                    .log();
             throw new RuntimeException("Token parsing failed", e);
         }
     }
@@ -175,7 +176,15 @@ public class TokenManager {
         try {
             return issuer.generateToken(sessionId, type, subjectID, subjectName, roles, groups, timeToLive);
         } catch (Exception e) {
-            log.error("Failed to generate JWT token", e);
+            ErrorLogger.create("Failed to generate JWT token", e)
+                    .putContext("sessionId", sessionId)
+                    .putContext("type", type)
+                    .putContext("subjectID", subjectID)
+                    .putContext("subjectName", subjectName)
+                    .putContext("roles", roles)
+                    .putContext("groups", groups)
+                    .putContext("timeToLive", timeToLive)
+                    .log();
             throw new RuntimeException("Token generation failed", e);
         }
     }
@@ -202,7 +211,10 @@ public class TokenManager {
         try {
             return issuer.refreshToken(token, timeToLive);
         } catch (Exception e) {
-            log.error("Failed to refresh JWT token", e);
+            ErrorLogger.create("Failed to refresh JWT token", e)
+                    .putContext("token", token.toString())
+                    .putContext("newTimeToLive", timeToLive)
+                    .log();
             throw new RuntimeException("Token refresh failed", e);
         }
     }

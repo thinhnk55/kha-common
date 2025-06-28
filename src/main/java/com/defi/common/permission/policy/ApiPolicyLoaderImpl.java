@@ -3,6 +3,7 @@ package com.defi.common.permission.policy;
 import com.defi.common.api.BaseResponse;
 import com.defi.common.permission.entity.PolicyRule;
 import com.defi.common.util.json.JsonUtil;
+import com.defi.common.util.log.ErrorLogger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -133,7 +134,9 @@ public class ApiPolicyLoaderImpl implements PolicyLoader {
             log.info("Policy loading completed successfully - {} policies loaded from API", policies.size());
 
         } catch (Exception e) {
-            log.error("Failed to load policies from API: {}", requestUrl, e);
+            ErrorLogger.create("Failed to load policies from API", e)
+                    .putContext("requestUrl", requestUrl)
+                    .log();
             throw new RuntimeException("API policy loading failed: " + e.getMessage(), e);
         }
     }
@@ -175,7 +178,9 @@ public class ApiPolicyLoaderImpl implements PolicyLoader {
             return policies;
 
         } catch (Exception e) {
-            log.error("Failed to load policy rules from API: {}", apiEndpoint, e);
+            ErrorLogger.create("Failed to load policy rules from API", e)
+                    .putContext("apiEndpoint", apiEndpoint)
+                    .log();
             throw new RuntimeException("API policy loading failed: " + e.getMessage(), e);
         }
     }
@@ -208,7 +213,9 @@ public class ApiPolicyLoaderImpl implements PolicyLoader {
             }
 
         } catch (Exception e) {
-            log.error("Failed to load policies into enforcer", e);
+            ErrorLogger.create("Failed to load policies into enforcer", e)
+                    .putContext("policyCount", policies.size())
+                    .log();
             throw new RuntimeException("Policy loading into enforcer failed", e);
         }
     }
@@ -226,7 +233,7 @@ public class ApiPolicyLoaderImpl implements PolicyLoader {
         try {
             TypeReference<BaseResponse<List<PolicyRule>>> typeRef = new TypeReference<>() {
             };
-            BaseResponse<List<PolicyRule>> response = JsonUtil.fromJsonString(jsonResponse, typeRef);
+            BaseResponse<List<PolicyRule>> response = JsonUtil.fromJson(jsonResponse, typeRef);
 
             if (response.data() == null) {
                 log.warn("API response 'data' field is null");
@@ -245,7 +252,9 @@ public class ApiPolicyLoaderImpl implements PolicyLoader {
             return validPolicies;
 
         } catch (Exception e) {
-            log.error("Failed to parse API response", e);
+            ErrorLogger.create("Failed to parse API response", e)
+                    .putContext("jsonResponse", jsonResponse)
+                    .log();
             throw new RuntimeException("Invalid JSON format in API response", e);
         }
     }

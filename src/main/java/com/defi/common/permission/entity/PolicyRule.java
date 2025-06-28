@@ -1,6 +1,5 @@
 package com.defi.common.permission.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,15 +23,25 @@ import lombok.NoArgsConstructor;
  * <p>
  * Example policy rule: Role ID 1 can perform action "read" on resource "users"
  * </p>
+ * 
+ * <p>
+ * Default constructor is provided by Lombok @NoArgsConstructor annotation.
+ * </p>
  *
  * @author Defi Team
  * @since 1.0.0
  */
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class PolicyRule {
+
+    /**
+     * Default constructor for PolicyRule.
+     */
+    public PolicyRule() {
+        // Default constructor
+    }
 
     /**
      * Unique identifier of the permission in the database.

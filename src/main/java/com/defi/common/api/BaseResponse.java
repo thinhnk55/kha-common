@@ -93,6 +93,18 @@ public record BaseResponse<T>(
     /** A conflict response. */
     public static final BaseResponse<Void> CONFLICT = of(CommonError.CONFLICT);
 
+    /** An invalid parameter response. */
+    public static final BaseResponse<Void> INVALID_PARAM = of(CommonError.INVALID_PARAM);
+
+    /** A method not allowed response. */
+    public static final BaseResponse<Void> METHOD_NOT_ALLOWED = of(CommonError.METHOD_NOT_ALLOWED);
+
+    /** A too many requests response. */
+    public static final BaseResponse<Void> TOO_MANY_REQUESTS = of(CommonError.TOO_MANY_REQUESTS);
+
+    /** A service unavailable response. */
+    public static final BaseResponse<Void> SERVICE_UNAVAILABLE = of(CommonError.SERVICE_UNAVAILABLE);
+
     /**
      * Converts the {@code BaseResponse} to a JSON string using {@link JsonUtil}.
      *

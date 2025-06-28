@@ -14,11 +14,11 @@ public class VertxHelper {
         // Utility class
     }
 
-
     /**
      * Retrieves the client's IP address from the routing context.
      * <p>
-     * If the {@code X-Forwarded-For} header is present (common in reverse proxy setups),
+     * If the {@code X-Forwarded-For} header is present (common in reverse proxy
+     * setups),
      * it is used. Otherwise, it falls back to the remote address of the request.
      * </p>
      *
@@ -26,17 +26,35 @@ public class VertxHelper {
      * @return the client's IP address as a string
      */
     public static String getIpAddress(RoutingContext rc) {
-        String ipAddress = rc.request().getHeader("X-Forwarded-For");
+        // Prefer CF-Connecting-IP (most reliable with Cloudflare)
+        String ipAddress = rc.request().getHeader("CF-Connecting-IP");
+
+        // Fallback to X-Forwarded-For
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = rc.request().getHeader("X-Forwarded-For");
+            // X-Forwarded-For can have multiple IPs: "client, proxy1, proxy2"
+            if (ipAddress != null && ipAddress.contains(",")) {
+                ipAddress = ipAddress.split(",")[0].trim();
+            }
+        }
+
+        // Fallback to X-Real-IP
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = rc.request().getHeader("X-Real-IP");
+        }
+
+        // Finally use remoteAddress
         if (ipAddress == null || ipAddress.isEmpty()) {
             ipAddress = rc.request().remoteAddress().host();
         }
+
         return ipAddress;
     }
 
     /**
      * Stores a {@link Token} object into the routing context for downstream access.
      *
-     * @param rc the routing context
+     * @param rc    the routing context
      * @param token the token to store
      */
     public static void setTokenToRoutingContext(RoutingContext rc, Token token) {

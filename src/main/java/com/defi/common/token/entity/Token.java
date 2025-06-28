@@ -12,16 +12,25 @@ import java.util.List;
  * authentication system.
  * It includes session, subject, access roles, token type, and expiration
  * metadata.
+ * 
+ * <p>
+ * Default constructor is provided by Lombok @NoArgsConstructor annotation.
+ * </p>
+ * 
+ * @author Defi Team
+ * @since 1.0.0
  */
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Token {
 
     /**
-     * Default constructor for framework usage.
+     * Default constructor for Token.
      */
+    public Token() {
+        // Default constructor
+    }
 
     /**
      * Unique session ID associated with the token.
