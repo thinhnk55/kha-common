@@ -114,12 +114,13 @@ public class HttpApi {
     }
 
     /**
-     * Handles errors and sends an internal server error response.
-     * This method is invoked when an exception or failure occurs during request
-     * processing.
+     * Sends a BaseResponse to the client with appropriate status code.
+     * This method sets the HTTP status code from the response and sends
+     * the response body as JSON.
      *
-     * @param ctx The RoutingContext containing the HTTP request/response context.
-     * @param err The error that occurred during request processing.
+     * @param ctx      The RoutingContext containing the HTTP request/response
+     *                 context.
+     * @param response The BaseResponse to send to the client.
      */
     public static void response(RoutingContext ctx, BaseResponse<?> response) {
         ctx.response().setStatusCode(response.code())

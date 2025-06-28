@@ -17,8 +17,14 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class EventLog {
+
+    /**
+     * Default constructor for EventLog.
+     */
+    public EventLog() {
+        // Default constructor for Lombok compatibility
+    }
 
     private String id;
     private String targetType;
