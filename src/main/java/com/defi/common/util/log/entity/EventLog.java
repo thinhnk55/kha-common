@@ -1,5 +1,6 @@
 package com.defi.common.util.log.entity;
 
+import com.defi.common.token.entity.SubjectType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,7 @@ public class EventLog {
     private String id;
     private String targetType;
     private String targetId;
-    private String subjectType;
+    private SubjectType subjectType;
     private String subjectId;
     private String type;
     private ObjectNode data;
