@@ -93,3 +93,12 @@ java {
     withSourcesJar()
     withJavadocJar()
 }
+
+// Configure JavaDoc to suppress warnings for Lombok-generated constructors
+tasks.javadoc {
+    options {
+        (this as StandardJavadocDocletOptions).apply {
+            addStringOption("Xdoclint:all,-missing", "-quiet")
+        }
+    }
+}

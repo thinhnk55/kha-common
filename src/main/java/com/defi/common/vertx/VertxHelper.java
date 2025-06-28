@@ -50,24 +50,4 @@ public class VertxHelper {
 
         return ipAddress;
     }
-
-    /**
-     * Stores a {@link Token} object into the routing context for downstream access.
-     *
-     * @param rc    the routing context
-     * @param token the token to store
-     */
-    public static void setTokenToRoutingContext(RoutingContext rc, Token token) {
-        rc.put("token", token);
-    }
-
-    /**
-     * Retrieves a {@link Token} object from the routing context.
-     *
-     * @param rc the routing context
-     * @return the token object, or null if not present
-     */
-    public static Token getTokenFromRoutingContext(RoutingContext rc) {
-        return rc.get("token");
-    }
 }

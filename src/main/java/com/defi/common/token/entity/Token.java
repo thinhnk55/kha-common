@@ -14,8 +14,16 @@ import java.util.List;
  * metadata.
  * 
  * <p>
- * Default constructor is provided by Lombok @NoArgsConstructor annotation.
+ * This class uses Lombok annotations to generate constructors:
  * </p>
+ * <ul>
+ * <li>{@code @NoArgsConstructor} - Creates a default constructor for frameworks
+ * and serialization</li>
+ * <li>{@code @AllArgsConstructor} - Creates a constructor with all fields as
+ * parameters</li>
+ * <li>{@code @Builder} - Provides a fluent builder pattern for object
+ * creation</li>
+ * </ul>
  * 
  * @author Defi Team
  * @since 1.0.0

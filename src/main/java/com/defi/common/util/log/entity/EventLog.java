@@ -13,6 +13,18 @@ import lombok.NoArgsConstructor;
  * It records the identity and type of the subject, the type of event, the
  * target of the event,
  * its status, timestamp, and any associated metadata in JSON form.
+ * 
+ * <p>
+ * This class uses Lombok annotations to generate constructors:
+ * </p>
+ * <ul>
+ * <li>{@code @NoArgsConstructor} - Creates a default constructor for frameworks
+ * and serialization</li>
+ * <li>{@code @AllArgsConstructor} - Creates a constructor with all fields as
+ * parameters</li>
+ * <li>{@code @Builder} - Provides a fluent builder pattern for object
+ * creation</li>
+ * </ul>
  */
 @Data
 @Builder

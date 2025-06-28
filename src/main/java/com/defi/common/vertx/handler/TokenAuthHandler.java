@@ -1,10 +1,9 @@
-package com.defi.common.vertx.auth;
+package com.defi.common.vertx.handler;
 
 import com.defi.common.api.BaseResponse;
 import com.defi.common.token.TokenManager;
 import com.defi.common.token.entity.Token;
 import com.defi.common.token.entity.TokenType;
-import com.defi.common.vertx.VertxHelper;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -20,7 +19,28 @@ public class TokenAuthHandler {
     /**
      * Default constructor for use in Vert.x route registration.
      */
-    public TokenAuthHandler() {}
+    public TokenAuthHandler() {
+    }
+
+    /**
+     * Stores a {@link Token} object into the routing context for downstream access.
+     *
+     * @param rc    the routing context
+     * @param token the token to store
+     */
+    public static void putTokenToRoutingContext(RoutingContext rc, Token token) {
+        rc.put("token", token);
+    }
+
+    /**
+     * Retrieves a {@link Token} object from the routing context.
+     *
+     * @param rc the routing context
+     * @return the token object, or null if not present
+     */
+    public static Token getTokenFromRoutingContext(RoutingContext rc) {
+        return rc.get("token");
+    }
 
     /**
      * Processes the incoming request and authenticates it using the Bearer token.
@@ -35,7 +55,7 @@ public class TokenAuthHandler {
             Token token = TokenManager.getInstance().parseToken(jwt);
 
             if (token != null && token.getTokenType() == TokenType.ACCESS_TOKEN) {
-                VertxHelper.setTokenToRoutingContext(rc, token);
+                putTokenToRoutingContext(rc, token);
                 rc.next();
                 return; // Prevents falling through to unauthorized response
             }
