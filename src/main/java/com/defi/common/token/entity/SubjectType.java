@@ -1,8 +1,10 @@
 package com.defi.common.token.entity;
 
 /**
- * {@code SubjectType} defines the type of entity (subject) that a token can represent.
- * It helps differentiate tokens issued for different system actors, such as users or system agents.
+ * {@code SubjectType} defines the type of entity (subject) that a token can
+ * represent.
+ * It helps differentiate tokens issued for different system actors, such as
+ * users or system agents.
  */
 public enum SubjectType {
 

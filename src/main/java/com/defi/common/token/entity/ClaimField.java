@@ -1,10 +1,14 @@
 package com.defi.common.token.entity;
 
 /**
- * {@code ClaimField} defines the standard claim keys used in JWT payloads for access and refresh tokens.
- * These keys are used when building or parsing a {@link com.nimbusds.jwt.JWTClaimsSet}.
+ * {@code ClaimField} defines the standard claim keys used in JWT payloads for
+ * access and refresh tokens.
+ * These keys are used when building or parsing a
+ * {@link com.nimbusds.jwt.JWTClaimsSet}.
  *
- * <p>Each enum constant maps to a short string used in the token's claim body.</p>
+ * <p>
+ * Each enum constant maps to a short string used in the token's claim body.
+ * </p>
  */
 public enum ClaimField {
 

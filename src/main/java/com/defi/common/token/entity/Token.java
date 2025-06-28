@@ -23,14 +23,8 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Token {
-
-    /**
-     * Default constructor for Token.
-     */
-    public Token() {
-        // Default constructor
-    }
 
     /**
      * Unique session ID associated with the token.
@@ -65,12 +59,12 @@ public class Token {
     /**
      * Issued-at time in seconds since epoch.
      */
-    private long iat;
+    private Long iat;
 
     /**
      * Expiration time in seconds since epoch.
      */
-    private long exp;
+    private Long exp;
 
     /**
      * Type of token (access or refresh).

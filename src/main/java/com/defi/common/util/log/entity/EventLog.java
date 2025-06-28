@@ -1,6 +1,5 @@
 package com.defi.common.util.log.entity;
 
-import com.defi.common.util.json.JsonUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,15 +16,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventLog {
-
-    /**
-     * Default constructor for EventLog.
-     */
-    public EventLog() {
-        // Default constructor for Lombok compatibility
-    }
-
     private String id;
     private String targetType;
     private String targetId;
@@ -34,5 +26,5 @@ public class EventLog {
     private String type;
     private ObjectNode data;
     private String correlationId;
-    private long createdAt;
+    private Long createdAt;
 }
