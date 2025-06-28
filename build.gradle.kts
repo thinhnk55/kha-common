@@ -77,9 +77,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            groupId = groupId   // Sử dụng biến cho groupId
-            artifactId = artifactId  // Sử dụng biến cho artifactId
-            version = version  // Sử dụng biến cho version
+            groupId = groupId
+            artifactId = artifactId
+            version = version
         }
     }
     repositories {
