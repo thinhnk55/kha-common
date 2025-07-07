@@ -74,6 +74,15 @@ public class JdbiProvider {
             return null;
         });
 
+        // Required to read JSON columns as ObjectNode
+        jdbi.registerColumnMapper(ObjectNode.class, (rs, col, ctx) -> {
+            PGobject pgObj = (PGobject) rs.getObject(col);
+            if (pgObj != null) {
+                return JsonUtil.toJsonObject(pgObj.getValue());
+            }
+            return null;
+        });
+
         // Required to store ObjectNode as JSON string
         jdbi.registerArgument((ArgumentFactory) (type, value, config) -> {
             if (value instanceof ObjectNode) {
