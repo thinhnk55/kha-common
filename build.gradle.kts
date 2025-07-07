@@ -16,7 +16,6 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
-val khaCommonVersion = "1.0.4"
 val vertxVersion = "5.0.0"
 val jacksonVersion = "2.19.1"
 val slf4jVersion = "2.0.16"
