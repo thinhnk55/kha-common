@@ -88,34 +88,20 @@ public class WorkflowEventListener implements MessageListener<String> {
     private final String channelName;
 
     /**
-     * Creates a new WorkflowEventListener using the default channel.
+     * Creates a new WorkflowEventListener with a custom channel name.
      * 
-     * <p>
-     * The default channel is defined by
-     * {@link WorkflowConstant#WORKFLOW_EVENT_CHANNEL}.
-     * </p>
+     * @param channelName the Redis channel name to listen on
      */
-    public WorkflowEventListener() {
-        this.channelName = WorkflowConstant.WORKFLOW_EVENT_CHANNEL;
+    public WorkflowEventListener(String channelName) {
+        this.channelName = channelName;
     }
 
     /**
      * Starts listening for workflow events on the configured Redis channel.
      * 
      * <p>
-     * This method initializes the Redis topic and registers this listener to
-     * receive
-     * workflow update notifications. Once started, the listener will automatically
-     * process incoming messages and trigger workflow definition reloads.
+     * This method initializes the Redis topic and starts the event listener
      * </p>
-     * 
-     * <p>
-     * The method validates that the Redisson client is properly initialized before
-     * attempting to create the topic and register the listener.
-     * </p>
-     * 
-     * @throws RuntimeException if Redisson client is not initialized
-     * @throws RuntimeException if topic creation or listener registration fails
      */
     public void startListening() {
         try {
@@ -191,27 +177,11 @@ public class WorkflowEventListener implements MessageListener<String> {
     @Override
     public void onMessage(CharSequence channel, String message) {
         try {
-            log.debug("Received message on channel: {} with content: {}", channel, message);
-
-            // Check if it's a publish message
             if (message.startsWith(WorkflowConstant.WORKFLOW_PUBLISHED_PREFIX)) {
                 String workflowCode = message.substring(WorkflowConstant.WORKFLOW_PUBLISHED_PREFIX.length());
-
-                if (workflowCode != null && !workflowCode.trim().isEmpty()) {
-                    log.info("Processing workflow publish event for code: {} from channel: {}", workflowCode, channel);
-
-                    // Reload the specific workflow definition
-                    WorkflowCacheManager cacheManager = WorkflowCacheManager.getInstance();
-                    cacheManager.reloadWorkflow(workflowCode.trim());
-                    log.info("Workflow definition reload completed successfully for code: {}", workflowCode);
-                } else {
-                    log.warn("Received workflow publish message with empty code: {}", message);
-                }
-
-            } else {
-                log.debug("Ignoring unknown message: {}", message);
+                WorkflowCacheManager cacheManager = WorkflowCacheManager.getInstance();
+                cacheManager.reloadWorkflow(workflowCode.trim());
             }
-
         } catch (Exception e) {
             ErrorLogger.create(e).log();
         }

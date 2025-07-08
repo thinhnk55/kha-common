@@ -78,18 +78,12 @@ public class WorkflowEventManager {
     private RTopic topic;
 
     /**
-     * The Redis channel name used for workflow event communication.
-     */
-    private final String channelName;
-
-    /**
      * Private constructor to enforce singleton pattern.
      * Initializes the manager with the default workflow event channel.
      */
     private WorkflowEventManager() {
-        this.channelName = WorkflowConstant.WORKFLOW_EVENT_CHANNEL;
-        this.listener = new WorkflowEventListener(channelName);
-        this.topic = Redisson.getInstance().getClient().getTopic(channelName);
+        this.listener = new WorkflowEventListener(WorkflowConstant.WORKFLOW_EVENT_CHANNEL);
+        this.topic = Redisson.getInstance().getClient().getTopic(WorkflowConstant.WORKFLOW_EVENT_CHANNEL);
     }
 
     /**
@@ -112,7 +106,7 @@ public class WorkflowEventManager {
     public void startListening() {
         try {
             listener.startListening();
-            log.info("WorkflowEventManager started listening on channel: {}", channelName);
+            log.info("WorkflowEventManager started listening on channel: {}", WorkflowConstant.WORKFLOW_EVENT_CHANNEL);
         } catch (Exception e) {
             ErrorLogger.create(e).log();
         }
@@ -135,7 +129,8 @@ public class WorkflowEventManager {
         try {
             if (listener != null) {
                 listener.stopListening();
-                log.info("WorkflowEventManager stopped listening on channel: {}", channelName);
+                log.info("WorkflowEventManager stopped listening on channel: {}",
+                        WorkflowConstant.WORKFLOW_EVENT_CHANNEL);
             }
         } catch (Exception e) {
             ErrorLogger.create(e).log();
