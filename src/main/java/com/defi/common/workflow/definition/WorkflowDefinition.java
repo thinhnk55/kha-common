@@ -77,5 +77,5 @@ public class WorkflowDefinition {
     /**
      * Limit time in milliseconds to process this workflow node.
      */
-    private Long limitTime;
+    private WorkflowLimitTime limitTime;
 }
