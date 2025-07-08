@@ -82,6 +82,17 @@ public class WorkflowEventManager {
      * Initializes the manager with the default workflow event channel.
      */
     private WorkflowEventManager() {
+
+    }
+
+    /**
+     * Initializes the WorkflowEventManager.
+     * 
+     * <p>
+     * This method creates a new WorkflowEventListener and sets up the Redis topic
+     * for workflow event communication.
+     */
+    public void init() {
         this.listener = new WorkflowEventListener(WorkflowConstant.WORKFLOW_EVENT_CHANNEL);
         this.topic = Redisson.getInstance().getClient().getTopic(WorkflowConstant.WORKFLOW_EVENT_CHANNEL);
     }
