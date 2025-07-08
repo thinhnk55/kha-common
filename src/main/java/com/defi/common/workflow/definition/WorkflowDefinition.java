@@ -73,4 +73,9 @@ public class WorkflowDefinition {
      * of workflow events or have override capabilities.
      */
     private WorkflowResponsible supervisor;
+
+    /**
+     * Limit time in milliseconds to process this workflow node.
+     */
+    private Long limitTime;
 }

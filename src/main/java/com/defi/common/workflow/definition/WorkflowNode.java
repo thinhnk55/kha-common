@@ -76,4 +76,9 @@ public class WorkflowNode {
      * at this stage of the workflow.
      */
     private WorkflowResponsible worker;
+
+    /**
+     * Limit time in milliseconds to process this workflow node.
+     */
+    private Long limitTime;
 }
