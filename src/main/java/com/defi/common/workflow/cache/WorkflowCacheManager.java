@@ -1,19 +1,18 @@
 package com.defi.common.workflow.cache;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.defi.common.mode.ModeManager;
 import com.defi.common.util.jdbi.JdbiProvider;
 import com.defi.common.util.json.JsonUtil;
-import org.flywaydb.core.internal.util.JsonUtils;
-
-import lombok.Getter;
-
-import com.defi.common.mode.ModeManager;
 import com.defi.common.workflow.constant.WorkflowConstant;
 import com.defi.common.workflow.definition.WorkflowDefinition;
 import com.defi.common.workflow.event.WorkflowEventManager;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Getter;
+import org.flywaydb.core.internal.util.JsonUtils;
+import org.postgresql.util.PGobject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Singleton manager for caching and managing workflow definitions.
@@ -119,6 +118,7 @@ public class WorkflowCacheManager {
                 WorkflowConstant.WORKFLOW_CONFIG_FILE);
         config = JsonUtils.parseJson(data, ObjectNode.class);
         reloadAllWorkflow();
+        WorkflowEventManager.getInstance().init();
         WorkflowEventManager.getInstance().startListening();
     }
 
@@ -152,9 +152,9 @@ public class WorkflowCacheManager {
                         .list()
                         .forEach(row -> {
                             String code = (String) row.get("code");
-                            String configJson = (String) row.get("config");
-                            if (code != null && configJson != null) {
-                                WorkflowDefinition definition = JsonUtil.fromJson(configJson, WorkflowDefinition.class);
+                            PGobject object = (PGobject) row.get("config");
+                            if (code != null && object != null) {
+                                WorkflowDefinition definition = JsonUtil.fromJson(object.getValue(), WorkflowDefinition.class);
                                 if (definition != null) {
                                     resultMap.put(code, definition);
                                 }
