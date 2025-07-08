@@ -33,7 +33,7 @@ public class WorkflowConstant {
     /**
      * Configuration file path for workflow settings.
      */
-    public static final String WORKFLOW_CONFIG_FILE = "config/workflow/workflow.json";
+    public static final String WORKFLOW_CONFIG_FILE = "workflow/workflow.json";
 
     /**
      * Standard publish message prefix that triggers workflow definition reloading.
