@@ -1,0 +1,7 @@
+{
+  "source_type": "database",
+  "source_config": {
+    "query_all": "SELECT code, config FROM config.workflows WHERE config IS NOT NULL",
+    "query_by_code": "SELECT config FROM config.workflows WHERE code = :code"
+  }
+}
