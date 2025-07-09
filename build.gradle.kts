@@ -5,7 +5,7 @@ plugins {
 
 val groupId = "com.github.thinhnk55"
 val artifactId = "kha-common"
-val versionId = "1.0.21"
+val versionId = "1.0.22"
 
 group = groupId
 version = versionId
