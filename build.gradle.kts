@@ -5,7 +5,7 @@ plugins {
 
 val groupId = "com.github.thinhnk55"
 val artifactId = "kha-common"
-val versionId = "1.0.23"
+val versionId = "1.0.24"
 
 group = groupId
 version = versionId
@@ -28,7 +28,6 @@ val minioVersion = "8.5.17"
 val uuidCreatorVersion = "6.0.0"
 val redissonVersion = "3.49.0"
 val lombokVersion = "1.18.36"
-val junitVersion = "5.9.1"
 val nimbusVersion = "10.3"
 val bouncyCastleVersion = "1.80"
 val jCasbinVersion = "1.81.0"
