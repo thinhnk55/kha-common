@@ -53,12 +53,14 @@ public class FlywayMigrator {
      * </ul>
      * 
      * @param dataSource the database connection source
+     * @param scriptLocations locations of sql scripts
      * @throws RuntimeException if migration fails
      */
-    public static void migrate(DataSource dataSource) {
+    public static void migrate(DataSource dataSource, String... scriptLocations) {
         try {
             Flyway flyway = Flyway.configure()
                     .dataSource(dataSource)
+                    .locations(scriptLocations)
                     .load();
             MigrateResult result = flyway.migrate();
 

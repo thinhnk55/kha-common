@@ -65,6 +65,11 @@ public class Token {
     private List<String> groups;
 
     /**
+     * List of permissions granted for this token.
+     */
+    private List<String> permissions;
+
+    /**
      * Issued-at time in seconds since epoch.
      */
     private Long iat;

@@ -19,7 +19,7 @@ import java.util.Optional;
  * It automatically registers ObjectNode mappers for seamless JSON column
  * reading and writing.
  * </p>
- * 
+ *
  * <p>
  * Example usage:
  * </p>

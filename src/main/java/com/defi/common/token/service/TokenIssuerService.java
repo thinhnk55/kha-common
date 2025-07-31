@@ -32,12 +32,13 @@ public interface TokenIssuerService {
      * @param subjectName display name of the subject
      * @param roles       list of role identifiers granted to the subject
      * @param groups      list of group identifiers the subject belongs to
+     * @param permissions      list of permissions granted to the subject
      * @param timeToLive  token lifetime in seconds
      * @return the generated JWT token as a string
      */
     String generateToken(String sessionId, TokenType type,
                          String subjectID, String subjectName, List<String> roles,
-                         List<String> groups, long timeToLive);
+                         List<String> groups, List<String> permissions, long timeToLive);
 
     /**
      * Refreshes an existing token by generating a new one with updated expiration.

@@ -40,7 +40,12 @@ public enum ClaimField {
     /**
      * Groups associated with the subject.
      */
-    GROUPS("group");
+    GROUPS("group"),
+
+    /**
+     * Permissions associated with the subject.
+     */
+    PERMISSIONS("permissions");
 
     private final String name;
 

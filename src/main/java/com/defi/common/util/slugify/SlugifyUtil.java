@@ -1,4 +1,4 @@
-package com.defi.common.slugify;
+package com.defi.common.util.slugify;
 
 import com.github.slugify.Slugify;
 

@@ -1,6 +1,6 @@
 package com.defi.common.util.minio;
 
-import com.defi.common.slugify.SlugifyUtil;
+import com.defi.common.util.slugify.SlugifyUtil;
 import com.defi.common.util.string.RandomStringUtil;
 import io.minio.*;
 

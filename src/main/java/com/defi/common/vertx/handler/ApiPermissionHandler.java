@@ -2,7 +2,6 @@ package com.defi.common.vertx.handler;
 
 import com.defi.common.api.BaseResponse;
 import com.defi.common.api.CommonError;
-import com.defi.common.permission.PermissionChecker;
 import com.defi.common.token.entity.Token;
 
 import io.vertx.core.Handler;
@@ -23,7 +22,6 @@ import io.vertx.ext.web.RoutingContext;
  * </p>
  * 
  * @see TokenAuthHandler
- * @see PermissionChecker
  */
 public class ApiPermissionHandler {
 
@@ -54,15 +52,13 @@ public class ApiPermissionHandler {
      * @return a Vert.x handler that validates permissions and either
      *         allows the request to continue or returns a FORBIDDEN response
      * @throws IllegalStateException if no token is found in the routing context
-     * 
-     * @see PermissionChecker
+     *
      */
     public static Handler<RoutingContext> create(String resource, String action) {
         return ctx -> {
             Token token = TokenAuthHandler.getTokenFromRoutingContext(ctx);
-            boolean isPermission = token.getRoles().stream().anyMatch(
-                    role -> PermissionChecker.getInstance().getEnforcer()
-                            .enforce(role, resource, action));
+            String permissionKey = resource + ":" + action;
+            boolean isPermission = token.getPermissions().contains(permissionKey);
             if (!isPermission) {
                 ctx.response().setStatusCode(CommonError.FORBIDDEN.getCode()).end(BaseResponse.FORBIDDEN.toString());
                 return;

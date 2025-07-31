@@ -60,6 +60,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
      * @param subjectName the subject (user) name
      * @param roles       the list of roles granted to the user
      * @param groups      the list of groups the user belongs to
+     * @param permissions       the list of permissions granted to the user
      * @param timeToLive  the token's time-to-live in seconds
      * @return a JWT token as a {@link String}
      * @throws RuntimeException if signing fails
@@ -67,7 +68,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
     @Override
     public String generateToken(String sessionId, TokenType type,
             String subjectID, String subjectName, List<String> roles,
-            List<String> groups, long timeToLive) {
+            List<String> groups, List<String> permissions, long timeToLive) {
         long issuedAt = Instant.now().getEpochSecond();
         Token token = Token.builder()
                 .sessionId(sessionId)
@@ -77,6 +78,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
                 .subjectType(SubjectType.USER)
                 .roles(roles)
                 .groups(groups)
+                .permissions(groups)
                 .iat(issuedAt)
                 .exp(issuedAt + timeToLive)
                 .build();

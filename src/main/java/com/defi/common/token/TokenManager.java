@@ -1,6 +1,7 @@
 package com.defi.common.token;
 
 import com.defi.common.token.entity.Token;
+import com.defi.common.token.entity.TokenType;
 import com.defi.common.token.helper.RSAKeyUtil;
 import com.defi.common.token.service.TokenIssuerService;
 import com.defi.common.token.service.TokenVerifierService;
@@ -9,11 +10,11 @@ import com.defi.common.token.service.impl.TokenVerifierServiceImpl;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.defi.common.util.log.ErrorLogger;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 
 /**
  * Singleton manager for JWT token operations including issuing and
@@ -161,20 +162,24 @@ public class TokenManager {
      * @param subjectName display name of the subject
      * @param roles       list of role identifiers
      * @param groups      list of group identifiers
+     * @param permissions list of permissions identifiers
      * @param timeToLive  token lifetime in seconds
      * @return the generated JWT token string
      * @throws IllegalStateException if TokenManager is not initialized
      * @throws RuntimeException      if token generation fails
      */
-    public String generateToken(String sessionId, com.defi.common.token.entity.TokenType type,
-            String subjectID, String subjectName, java.util.List<String> roles,
-            java.util.List<String> groups, long timeToLive) {
+    public String generateToken(String sessionId, TokenType type,
+            String subjectID, String subjectName,
+                                List<String> roles,
+                                List<String> groups,
+                                List<String> permissions,
+                                long timeToLive) {
         if (!initialized || issuer == null) {
             throw new IllegalStateException("TokenManager is not initialized. Call init() first.");
         }
 
         try {
-            return issuer.generateToken(sessionId, type, subjectID, subjectName, roles, groups, timeToLive);
+            return issuer.generateToken(sessionId, type, subjectID, subjectName, roles, groups, permissions, timeToLive);
         } catch (Exception e) {
             ErrorLogger.create("Failed to generate JWT token", e)
                     .putContext("sessionId", sessionId)
@@ -183,6 +188,7 @@ public class TokenManager {
                     .putContext("subjectName", subjectName)
                     .putContext("roles", roles)
                     .putContext("groups", groups)
+                    .putContext("permissions", permissions)
                     .putContext("timeToLive", timeToLive)
                     .log();
             throw new RuntimeException("Token generation failed", e);
