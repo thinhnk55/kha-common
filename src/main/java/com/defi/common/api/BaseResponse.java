@@ -114,4 +114,15 @@ public record BaseResponse<T>(
     public String toString() {
         return JsonUtil.toJsonString(this);
     }
+
+
+    /**
+     * Checks if this response represents a successful operation.
+     * 
+     * @return {@code true} if the response code equals the success code,
+     *         {@code false} otherwise
+     */
+    public boolean isSuccess(){
+        return code == CommonError.SUCCESS.getCode();
+    }
 }
