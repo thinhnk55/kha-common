@@ -78,7 +78,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
                 .subjectType(SubjectType.USER)
                 .roles(roles)
                 .groups(groups)
-                .permissions(groups)
+                .permissions(permissions)
                 .iat(issuedAt)
                 .exp(issuedAt + timeToLive)
                 .build();
@@ -139,6 +139,7 @@ public class TokenIssuerServiceImpl implements TokenIssuerService {
                     .claim(ClaimField.SUBJECT_TYPE.getName(), payload.getSubjectType().getName())
                     .claim(ClaimField.ROLES.getName(), payload.getRoles())
                     .claim(ClaimField.GROUPS.getName(), payload.getGroups())
+                    .claim(ClaimField.PERMISSIONS.getName(), payload.getPermissions())
                     .build();
 
             SignedJWT signedJWT = new SignedJWT(header, claimsSet);

@@ -19,7 +19,7 @@ public class ValidationPattern {
     public static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
 
     /** Regex pattern for validating phone numbers (international format with optional country code). */
-    public static final String PHONE_REGEX = "^\\+?[1-9]\\d{1,14}$";
+    public static final String PHONE_REGEX = "^\\+?\\d{1,15}$";
 
     /**
      * Regex for validating strong passwords.
