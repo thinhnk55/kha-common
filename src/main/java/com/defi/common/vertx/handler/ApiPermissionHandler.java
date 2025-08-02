@@ -59,6 +59,10 @@ public class ApiPermissionHandler {
             Token token = TokenAuthHandler.getTokenFromRoutingContext(ctx);
             String permissionKey = resource + ":" + action;
             boolean isPermission = token.getPermissions().contains(permissionKey);
+            if(!isPermission){
+                permissionKey = resource + ":*";
+                isPermission = token.getPermissions().contains(permissionKey);
+            }
             if (!isPermission) {
                 ctx.response().setStatusCode(CommonError.FORBIDDEN.getCode()).end(BaseResponse.FORBIDDEN.toString());
                 return;
