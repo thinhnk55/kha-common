@@ -5,7 +5,7 @@ plugins {
 
 val groupId = "com.github.thinhnk55"
 val artifactId = "kha-common"
-val versionId = "1.0.27"
+val versionId = "1.0.28"
 
 group = groupId
 version = versionId
@@ -34,6 +34,7 @@ val jCasbinVersion = "1.81.0"
 val guavaVersion = "33.4.8-jre"
 val slugifyVersion = "3.0.7"
 val icu4jVersion = "77.1"
+val jakartaMailVersion = "2.0.1"
 
 dependencies {
     implementation("io.vertx:vertx-core:$vertxVersion")
@@ -66,6 +67,8 @@ dependencies {
     implementation("com.github.slugify:slugify:$slugifyVersion")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("com.ibm.icu:icu4j:$icu4jVersion")
+    implementation("jakarta.mail:jakarta.mail-api:${jakartaMailVersion}")
+    implementation("com.sun.mail:jakarta.mail:${jakartaMailVersion}")
 
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
