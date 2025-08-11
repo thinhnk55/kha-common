@@ -1,6 +1,7 @@
 package com.defi.common.vertx.handler;
 
 import com.defi.common.api.BaseResponse;
+import com.defi.common.api.CommonError;
 import com.defi.common.token.TokenManager;
 import com.defi.common.token.entity.Token;
 import com.defi.common.token.entity.TokenType;
@@ -60,7 +61,7 @@ public class TokenAuthHandler {
                 return; // Prevents falling through to unauthorized response
             }
         }
-
-        rc.response().end(BaseResponse.UNAUTHORIZED.toString());
+        rc.response().setStatusCode(CommonError.UNAUTHORIZED.getCode())
+                .end(BaseResponse.UNAUTHORIZED.toString());
     }
 }
