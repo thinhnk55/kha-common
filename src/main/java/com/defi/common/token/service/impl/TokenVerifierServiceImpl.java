@@ -88,6 +88,11 @@ public class TokenVerifierServiceImpl implements TokenVerifierService {
                     .map(String::valueOf)
                     .collect(Collectors.toList());
 
+            List<String> permisions = claims.getListClaim(ClaimField.PERMISSIONS.getName())
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+
             long issuedAt = claims.getIssueTime().toInstant().getEpochSecond();
             long expiresAt = claims.getExpirationTime().toInstant().getEpochSecond();
 
@@ -99,6 +104,7 @@ public class TokenVerifierServiceImpl implements TokenVerifierService {
                     .subjectType(SubjectType.forName((String) claims.getClaim(ClaimField.SUBJECT_TYPE.getName())))
                     .roles(roles)
                     .groups(groups)
+                    .permissions(permisions)
                     .iat(issuedAt)
                     .exp(expiresAt)
                     .build();
