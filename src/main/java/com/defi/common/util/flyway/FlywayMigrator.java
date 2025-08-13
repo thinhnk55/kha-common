@@ -61,6 +61,7 @@ public class FlywayMigrator {
             Flyway flyway = Flyway.configure()
                     .dataSource(dataSource)
                     .locations(scriptLocations)
+                    .outOfOrder(true)
                     .load();
             MigrateResult result = flyway.migrate();
 
