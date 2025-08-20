@@ -3,10 +3,12 @@ package com.defi.common.util.minio;
 import com.defi.common.util.slugify.SlugifyUtil;
 import com.defi.common.util.string.RandomStringUtil;
 import io.minio.*;
+import io.minio.messages.DeleteObject;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * Service class for MinIO object storage operations.
@@ -99,6 +101,40 @@ public class MinioService {
                 RemoveObjectArgs.builder()
                         .bucket(bucketName)
                         .object(objectKey)
+                        .build());
+    }
+
+    /**
+     * Deletes multiple files from MinIO storage in a single operation.
+     * 
+     * <p>
+     * This method performs bulk deletion of objects from the specified bucket.
+     * It is more efficient than calling {@link #deleteFile(String, String)} 
+     * multiple times when deleting multiple files.
+     * </p>
+     * 
+     * @param bucketName the name of the bucket containing the files
+     * @param objectKeys a list of object keys/paths to delete
+     * @throws Exception if any delete operation fails
+     * @throws IllegalArgumentException if bucketName is null or empty, or objectKeys is null
+     */
+    public void deleteFiles(String bucketName, List<String> objectKeys) throws Exception {
+        if (bucketName == null || bucketName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Bucket name cannot be null or empty");
+        }
+        if (objectKeys == null) {
+            throw new IllegalArgumentException("Object keys list cannot be null");
+        }
+        if (objectKeys.isEmpty()) {
+            return; // Nothing to delete
+        }
+
+        MinioClientProvider.getInstance().removeObjects(
+                RemoveObjectsArgs.builder()
+                        .bucket(bucketName)
+                        .objects(objectKeys.stream()
+                                .map(DeleteObject::new)
+                                .collect(java.util.stream.Collectors.toList()))
                         .build());
     }
 
